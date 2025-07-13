@@ -1,5 +1,14 @@
 # ========= DATASET =========
-dataset/
+
+# 忽略 dataset 下的图像数据
+dataset/train/
+dataset/test/
+
+# 明确保留 dataset 文件夹下的代码
+!dataset/
+!dataset/*.py
+
+# 忽略所有位置的图片文件
 *.jpg
 *.jpeg
 *.png
