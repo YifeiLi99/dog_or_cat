@@ -1,0 +1,30 @@
+# ========= DATASET =========
+dataset/
+*.jpg
+*.jpeg
+*.png
+
+# ========= PYTHON CACHE =========
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# ========= JUPYTER CACHE =========
+.ipynb_checkpoints/
+
+# ========= MODEL WEIGHTS =========
+*.pt
+*.pth
+*.ckpt
+
+# ========= ENVIRONMENT =========
+.env
+*.log
+*.DS_Store
+
+# ========= IDE / SYSTEM CONFIG =========
+.vscode/
+.idea/
+*.swp
+Thumbs.db
