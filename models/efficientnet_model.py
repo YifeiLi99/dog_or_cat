@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from torchvision import models
+from torchvision.models import efficientnet_b0, EfficientNet_B0_Weights
 
 class EfficientNetBinaryClassifier(nn.Module):
     """
@@ -21,7 +22,11 @@ class EfficientNetBinaryClassifier(nn.Module):
         super(EfficientNetBinaryClassifier, self).__init__()
 
         # 加载 EfficientNet-B0 预训练模型（包含 features + classifier）
-        self.backbone = models.efficientnet_b0(pretrained=pretrained)
+        if pretrained:
+            weights = EfficientNet_B0_Weights.IMAGENET1K_V1
+        else:
+            weights = None
+        self.backbone = efficientnet_b0(weights=weights)
 
         # 冻结特征提取部分参数（即 self.backbone.features）
         if freeze_backbone:
