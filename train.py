@@ -46,7 +46,7 @@ if __name__ == "__main__":
     os.makedirs("weights", exist_ok=True)
 
     # 保存模型参数（state_dict 仅保存权重，不含结构）
-    save_path = os.path.join("weights", "efficientnet_cat_dog.pth")
+    save_path = os.path.join("weights", "efficientnet_cat_dog01.pth")
     torch.save(model.state_dict(), save_path)
 
     print(f"模型已保存至: {save_path}")

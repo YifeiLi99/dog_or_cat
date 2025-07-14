@@ -125,15 +125,17 @@ def get_dataloaders(data_dir, img_size=224, batch_size=32, valid_ratio=0.2):
         transforms.RandomHorizontalFlip(),
         # 转为 torch.Tensor，且归一化到 [0, 1]
         transforms.ToTensor(),
-        # 把像素标准化到 [-1, 1]
-        transforms.Normalize(mean=[0.5] * 3, std=[0.5] * 3)
+        # 冻结时，用 ImageNet 归一化
+        transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                         std=[0.229, 0.224, 0.225])
     ])
 
     # 验证集 transform：不使用数据增强，仅进行 resize 和标准化
     val_transform = transforms.Compose([
         transforms.Resize((img_size, img_size)),
         transforms.ToTensor(),
-        transforms.Normalize(mean=[0.5] * 3, std=[0.5] * 3)
+        transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                         std=[0.229, 0.224, 0.225])
     ])
 
     # 构建 Dataset 和 DataLoader
