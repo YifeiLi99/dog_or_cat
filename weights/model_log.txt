@@ -1,0 +1,15 @@
+efficientnet_cat_dog
+准确率 97.3%
+标准化是mean=[0.5] * 3, std=[0.5] * 3
+
+efficientnet_cat_dog01
+准确率 97.4%
+后续标准化都改为了mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+
+efficientnet_cat_dog02
+准确率99.18%
+解冻了全部网络，30轮训练
+
+efficientnet_cat_dog03
+准确率99.11%
+9轮早停版

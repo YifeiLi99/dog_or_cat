@@ -8,7 +8,7 @@ from tqdm import tqdm
 # ----------- 路径配置 -----------
 BASE_DIR = Path(__file__).resolve().parent.parent
 TEST_DIR = BASE_DIR / "dataset" / "test"
-WEIGHTS_PATH = BASE_DIR / "weights" / "efficientnet_cat_dog01.pth"
+WEIGHTS_PATH = BASE_DIR / "weights" / "efficientnet_cat_dog03.pth"
 IMG_SIZE = 224
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -16,8 +16,9 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 test_transform = transforms.Compose([
     transforms.Resize((IMG_SIZE, IMG_SIZE)),
     transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                         std=[0.229, 0.224, 0.225])
+    transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])
+    #老标准化大小
+    #transforms.Normalize(mean=[0.5] * 3, std=[0.5] * 3)
 ])
 
 test_dataset = datasets.ImageFolder(root=TEST_DIR, transform=test_transform)
