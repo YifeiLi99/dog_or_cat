@@ -6,6 +6,7 @@ from models.efficientnet_model import EfficientNetBinaryClassifier
 from train_utils.train_utils import train_model
 import os
 from torch.optim.lr_scheduler import StepLR
+import pandas as pd
 
 # -----------------------------
 # 设置设备：优先使用 GPU
@@ -44,7 +45,7 @@ if __name__ == "__main__":
     scheduler = StepLR(optimizer, step_size=7, gamma=0.1)
 
     # 4. 启动训练主流程（含验证评估）
-    train_model(model, train_loader, val_loader, criterion, optimizer, scheduler, device, num_epochs)
+    train_logs = train_model(model, train_loader, val_loader, criterion, optimizer, scheduler, device, num_epochs)
 
     # 自动创建保存目录
     os.makedirs("weights", exist_ok=True)
@@ -52,5 +53,12 @@ if __name__ == "__main__":
     # 保存模型参数（state_dict 仅保存权重，不含结构）
     save_path = os.path.join("weights", "efficientnet_cat_dog03.pth")
     torch.save(model.state_dict(), save_path)
-
     print(f"模型已保存至: {save_path}")
+
+    #保存log文件
+    #确保 log 文件夹存在
+    log_dir = 'log'
+    os.makedirs(log_dir, exist_ok=True)
+    logs_df = pd.DataFrame(train_logs)
+    logs_df.to_csv('log/train_log.csv', index=False)
+

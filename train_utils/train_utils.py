@@ -192,14 +192,17 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, scheduler
     :param num_epochs: 总训练轮数
     :type num_epochs: int
 
-    :return: 无（但会打印每轮的损失与准确率）
-    :rtype: None
+    :return: log
+    :rtype: list
     """
     #确保模型在 CPU 或 GPU 上运行
     model.to(device)
 
     #初始化早停
     early_stopping = EarlyStopping(patience=5)
+
+    #创建log
+    train_logs = []
 
     #控制整个训练过程
     for epoch in range(num_epochs):
@@ -215,6 +218,15 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, scheduler
         # 调整学习率
         scheduler.step()
 
+        #输出日志
+        train_logs.append({
+            'epoch': epoch + 1,
+            'train_loss': train_loss,
+            'train_acc': train_acc,
+            'val_loss': val_loss,
+            'val_acc': val_acc
+        })
+
         #查看指标
         tqdm.write(f"\nTrain Loss: {train_loss:.4f} | Train Acc: {train_acc:.4f}")
         tqdm.write(f"Val   Loss: {val_loss:.4f} | Val   Acc: {val_acc:.4f}")
@@ -223,10 +235,13 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, scheduler
         #看看是否需要早停
         early_stopping(val_loss, model)
         if early_stopping.early_stop:
-            tqdm.write(f"\n⏹️ Early stopping triggered at epoch {epoch + 1}")
+            tqdm.write(f"\nEarly stopping triggered at epoch {epoch + 1}")
             break
 
     # 恢复最佳模型
     model.load_state_dict(early_stopping.best_state_dict)
     tqdm.write(f"\nLoaded best model with val_loss = {early_stopping.best_loss:.4f}")
+
+    #返回log
+    return train_logs
 
