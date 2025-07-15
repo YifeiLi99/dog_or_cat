@@ -4,11 +4,13 @@ from torchvision import transforms
 from PIL import Image
 from pathlib import Path
 from models.efficientnet_model import EfficientNetBinaryClassifier
+import torch.nn.functional as F
 
 # ----------- 路径配置 -----------
 BASE_DIR = Path(__file__).resolve().parent.parent  # 获取项目根目录
-WEIGHTS_PATH = BASE_DIR / "weights" / "efficientnet_cat_dog.pth"
+WEIGHTS_PATH = BASE_DIR / "weights" / "efficientnet_cat_dog03.pth"
 IMG_SIZE = 224  # 与训练保持一致
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # ----------- 图像预处理 -----------
 transform = transforms.Compose([
@@ -19,36 +21,33 @@ transform = transforms.Compose([
 ])
 
 # ----------- 推理函数 -----------
-def predict_image(image_path: Path, device: str = 'cpu') -> int:
+def predict_image(model, image, device):
     """
-    对单张图像进行推理分类（猫或狗）
+        对单张图像进行推理分类（猫或狗），返回类别和预测概率。
 
-    :param image_path: 图像路径
-    :type image_path: Path
-    :param device: 推理设备（'cpu' 或 'cuda'）
-    :type device: str
-    :return: 类别标签（0 = Cat, 1 = Dog）
-    :rtype: int
+        :param model: 模型
+        :type model: EfficientNetBinaryClassifier
+        :param image: 图像
+        :type image: Path
+        :param device: 推理设备（'cpu' 或 'cuda'）
+        :type device: device
+        :return: (类别标签（0 = Cat, 1 = Dog）, 预测概率)
+        :rtype: Tuple[int, float]
     """
-    if not image_path.exists():
-        raise FileNotFoundError(f"图像路径不存在: {image_path}")
-
     # 加载图像并预处理
-    image = Image.open(image_path).convert('RGB')
-    image_tensor = transform(image).unsqueeze(0).to(device)  # 增加 batch 维度
-
-    # 加载模型并加载权重
-    model = EfficientNetBinaryClassifier(pretrained=False)
-    model.load_state_dict(torch.load(WEIGHTS_PATH, map_location=device))
-    model.to(device)
+    image_tensor = transform(image).unsqueeze(0).to(device)
+    # 变成推理模式
     model.eval()
 
     # 推理
     with torch.no_grad():
+        # logits 输出
         output = model(image_tensor)
-        predicted = torch.argmax(output, dim=1).item()
+        # 转为概率
+        probs = torch.softmax(output, dim=1)
+        prob, cls = torch.max(probs, dim=1)
 
-    return predicted
+    return cls.item(), prob.item()
 
 # ----------- 图片分类函数 -----------
 def classify_and_organize_images(model, src_folder, dst_folder, weight_path, device="cpu", img_size=224):
@@ -110,9 +109,15 @@ def classify_and_organize_images(model, src_folder, dst_folder, weight_path, dev
 # ----------- 推理测试入口 -----------
 if __name__ == "__main__":
     # 输入图像路径
-    image_path = BASE_DIR / "dataset" / "test" / "620.jpg"
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    image_path = BASE_DIR / "dataset" / "test" / "cat" / "7846.jpg"
 
-    pred = predict_image(image_path, device)
-    label = "Dog 🐶" if pred == 1 else "Cat 🐱"
-    print(f"预测结果: {label}")
+    # ----------- 模型加载 -----------
+    model = EfficientNetBinaryClassifier(pretrained=False)
+    model.load_state_dict(torch.load(WEIGHTS_PATH, map_location=DEVICE))
+    model = model.to(DEVICE)
+
+    #开始推理
+    cls, prob = predict_image(model, image_path, DEVICE)
+    label = "Dog 🐶" if cls == 1 else "Cat 🐱"
+    print(f"预测结果: {label} (置信度: {prob:.4f})")
+

@@ -13,3 +13,7 @@ efficientnet_cat_dog02
 efficientnet_cat_dog03
 准确率99.11%
 9轮早停版
+
+efficientnet_cat_dog03
+准确率99.23%
+10轮早停版（忘改了上一版被覆盖了）
